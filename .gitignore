@@ -7,3 +7,4 @@ src/__pycache__/*.pyc
 .idea
 .git
 .python-version
+.DS_Store
