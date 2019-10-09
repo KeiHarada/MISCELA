@@ -1,6 +1,10 @@
+import sys
+sys.path.append("/home/harada/Documents/WorkSpace/miscela")
+
 import pandas as pd
 import numpy as np
 import copy
+import time
 import pickle
 from pyclustering.cluster.dbscan import dbscan
 
@@ -128,11 +132,16 @@ def clustering(S, distance):
 
     return C
 
-def capSearch(S, C, K, psi, tau):
+def search(algorithm, S, C, K, psi, tau):
 
     CAPs = list()
-    for c in C:
-        CAPs += search(S, c, K, psi, tau, list(), list())
+    if algorithm == "miscela":
+        for c in C:
+            CAPs += capSearch(S, c, K, psi, tau, list(), list())
+
+    if algorithm == "assembler":
+        for c in C:
+            CAPs += scpSearch(S, c, K, psi, tau, list(), list())
 
     for i in range(len(CAPs)):
         CAPs[i].setId(i)
@@ -140,7 +149,7 @@ def capSearch(S, C, K, psi, tau):
 
     return CAPs
 
-def search(S, c, K, psi, tau, X, CAP_X):
+def capSearch(S, c, K, psi, tau, X, CAP_X):
 
     CAPs = list()
 
@@ -154,10 +163,33 @@ def search(S, c, K, psi, tau, X, CAP_X):
         Y.append(y)
         Y.sort()
 
-        if parent(S, Y, K) == X:
+        if parent_miscela(S, Y, K) == X:
             CAP_Y = getCAP(S, y, psi, tau, CAP_X)
             if len(CAP_Y) != 0:
-                CAPs += search(S, c, K, psi, tau, Y, CAP_Y)
+                CAPs += capSearch(S, c, K, psi, tau, Y, CAP_Y)
+
+    return CAPs
+
+def scpSearch(S, c, K, psi, tau, X, CAP_X):
+
+    CAPs = list()
+
+    if len(X) >= 2:
+        for cap_x in CAP_X:
+            if len(cap_x.getAttribute()) >= 2 and len(cap_x.getAttribute()) <= K:
+                CAPs += CAP_X
+
+    F_X = follower(S, c, X)
+
+    for y in F_X:
+        Y = X.copy()
+        Y.append(y)
+        Y.sort()
+
+        if parent_assembler(S, Y) == X:
+            CAP_Y = getCAP(S, y, psi, tau, CAP_X)
+            if len(CAP_Y) != 0:
+                CAPs += capSearch(S, c, K, psi, tau, Y, CAP_Y)
 
     return CAPs
 
@@ -175,7 +207,7 @@ def follower(S, c, X):
         F_X -= set(X)
         return sorted(list(F_X))
 
-def parent(S, Y, K):
+def parent_miscela(S, Y, K):
 
     # size(Y) = 1
     if len(Y) == 1:
@@ -216,6 +248,34 @@ def parent(S, Y, K):
                 attCounter.add(S[z].getAttribute())
             if len(attCounter) >= 2 and len(attCounter) <= K:
                 return Z
+
+    return list()
+
+def parent_assembler(S, Y):
+
+    # size(Y) = 1
+    if len(Y) == 1:
+        return list()
+
+    # size(Y) == 2
+    if len(Y) == 2:
+        return [Y[1], ]
+
+    # size(Y) >= 3
+    for y in Y:
+        Z = Y.copy()
+        Z.remove(y)
+        L_Z = np.array([[0]*len(Z)]*len(Z))
+        for i in range(0, len(Z)):
+            for j in range(i+1, len(Z)):
+                if Z[j] in S[Z[i]].getNeighbor():
+                    L_Z[i][j] = -1
+                    L_Z[j][i] = -1
+            L_Z[i][i] = np.count_nonzero(L_Z[i])
+
+        # rank(L(Z)) = |Z|-1 => Z is connected
+        if np.linalg.matrix_rank(L_Z) == len(Z)-1:
+            return Z
 
     return list()
 
@@ -366,10 +426,11 @@ def miscela(args):
     print(Color.GREEN + "OK" + Color.END)
 
     # CAP search
+    start = time.time()
     print("\t|- phase4: cap search ... ", end="")
-    CAPs = capSearch(S, C, args.maxAtt, args.minSup, D)
-    print(CAPs)
+    CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
     print(Color.GREEN + "OK" + Color.END)
+    end = time.time()
 
     # save the results into .pickle file
     with open("pickle/"+args.dataset+"/sensor.pickle", "wb") as pl:
@@ -382,6 +443,66 @@ def miscela(args):
         pickle.dump(CAPs, pl)
     with open("pickle/"+args.dataset+"/threshold.pickle", "wb") as pl:
         pickle.dump(thresholds, pl)
+
+    print("*found caps: {}".format(len(CAPs)))
+    print("*search time: {} [m]".format((end-start)/60.0))
+
+def assembler(args):
+
+    print("*----------------------------------------------------------*")
+    print("* Assembler is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D, idx = dict(), 0
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = args.delay[idx]
+        del S_a
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # CAP search
+    start = time.time()
+    print("\t|- phase4: cap search ... ", end="")
+    CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+    print(Color.GREEN + "OK" + Color.END)
+    end = time.time()
+
+    # save the results into .pickle file
+    with open("pickle/"+args.dataset+"/sensor.pickle", "wb") as pl:
+        pickle.dump(S, pl)
+    with open("pickle/"+args.dataset+"/attribute.pickle", "wb") as pl:
+        pickle.dump(M, pl)
+    with open("pickle/"+args.dataset+"/cluster.pickle", "wb") as pl:
+        pickle.dump(C, pl)
+    with open("pickle/"+args.dataset+"/cap.pickle", "wb") as pl:
+        pickle.dump(CAPs, pl)
+    with open("pickle/"+args.dataset+"/threshold.pickle", "wb") as pl:
+        pickle.dump(thresholds, pl)
+
+    print("*found caps: {}".format(len(CAPs)))
+    print("*search time: {} [m]".format((end - start) / 60.0))
 
 def mocServer(args):
 

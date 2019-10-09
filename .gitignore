@@ -2,6 +2,7 @@
 db/**/*.csv
 result/**/*.csv
 pickle/**/*.pickle
+tmp/**/*.pickle
 src/__pycache__/*.pyc
 # file
 .idea
