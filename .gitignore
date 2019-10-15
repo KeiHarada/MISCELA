@@ -3,7 +3,7 @@ db/**/*.csv
 db/**/*.bak
 result/**/*.csv
 pickle/**/*.pickle
-tmp/**/*.pickle
+tmp/
 src/__pycache__/*.pyc
 # file
 .idea
