@@ -627,7 +627,7 @@ def capAnalysis(args):
             tmp = list()
             loc = set()
             for s_i in cap_i.getMember():
-                loc.add(tuple(S[s_i].Location()))
+                loc.add(tuple(S[s_i].getLocation()))
                 tmp.append(S[s_i].getId())
                 tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
 
