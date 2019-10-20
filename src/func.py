@@ -625,10 +625,15 @@ def capAnalysis(args):
         S = pickle.load(open("tmp/{}/{}/sensor.pickle".format(str(idx).zfill(2), args.dataset), "rb"))
         for cap_i in pickle.load(open("tmp/{}/{}/cap.pickle".format(str(idx).zfill(2), args.dataset), "rb")):
             tmp = list()
+            loc = set()
             for s_i in cap_i.getMember():
+                loc.add(tuple(S[s_i].Location()))
                 tmp.append(S[s_i].getId())
                 tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
-            b.add(tuple(tmp))
+
+            if len(loc) >= 2:
+                b.add(tuple(tmp))
+
         c = b - (a & b)
         if len(c) == 0:
             print(str(idx).zfill(2), ":\tNone")
