@@ -406,7 +406,7 @@ def miscela(args):
         S += S_a
         M[attribute] = len(S_a)
         D[attribute] = args.delay[idx]
-        del S_a
+        idx += 1
     print(Color.GREEN + "OK" + Color.END)
 
     # data segmenting
@@ -465,7 +465,7 @@ def assembler(args):
         S += S_a
         M[attribute] = len(S_a)
         D[attribute] = args.delay[idx]
-        del S_a
+        idx += 1
     print(Color.GREEN + "OK" + Color.END)
 
     # data segmenting
@@ -578,3 +578,59 @@ def mocServer(args):
                 for sensor_id in ids.keys():
                     outfile2.write("," + ids[sensor_id][i])
                 outfile2.write("\n")
+
+def re_miscela(args):
+
+    print("*----------------------------------------------------------*")
+    print("* re-MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- loading data ... ", end="")
+    S = pickle.load( open("pickle/"+args.dataset+"/sensor.pickle", "rb"))
+    C = pickle.load(open("pickle/"+args.dataset+"/cluster.pickle", "rb"))
+    D, idx = dict(), 0
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        D[attribute] = args.delay[idx]
+        idx += 1
+    print(Color.GREEN + "OK" + Color.END)
+
+    # CAP search
+    start = time.time()
+    print("\t|- cap search ... ", end="")
+    CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    print(Color.GREEN + "OK" + Color.END)
+    end = time.time()
+
+    print("*found caps: {}".format(len(CAPs)))
+    print("*search time: {} [m]".format((end-start)/60.0))
+
+    # save the results into .pickle file
+    with open("pickle/"+args.dataset+"/cap.pickle", "wb") as pl:
+        pickle.dump(CAPs, pl)
+
+def capAnalysis(args):
+
+    a = set()
+    S = pickle.load(open("tmp/00/{}/sensor.pickle".format(args.dataset), "rb"))
+    for cap_i in pickle.load(open("tmp/00/{}/cap.pickle".format(args.dataset), "rb")):
+        tmp = list()
+        for s_i in cap_i.getMember():
+            tmp.append(S[s_i].getId())
+            tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
+        a.add(tuple(tmp))
+
+    for idx in range(1, 27):
+        b = set()
+        S = pickle.load(open("tmp/{}/{}/sensor.pickle".format(str(idx).zfill(2), args.dataset), "rb"))
+        for cap_i in pickle.load(open("tmp/{}/{}/cap.pickle".format(str(idx).zfill(2), args.dataset), "rb")):
+            tmp = list()
+            for s_i in cap_i.getMember():
+                tmp.append(S[s_i].getId())
+                tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
+            b.add(tuple(tmp))
+        c = b - (a & b)
+        if len(c) == 0:
+            print(str(idx).zfill(2), ":\tNone")
+        else:
+            print(str(idx).zfill(2), ":\t", c)

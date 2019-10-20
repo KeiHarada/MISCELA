@@ -23,4 +23,5 @@ python ./src/main.py --dataset china6 --maxAtt 6 --distance 200 --delay 0 0 0 0 
 cp -r ./pickle/china6 ./tmp/10
 python ./src/main.py --dataset china6 --maxAtt 6 --distance 200 --delay 0 0 0 0 0 1 
 cp -r ./pickle/china6 ./tmp/11
-python ./src/main.py --dataset china6 --maxAtt 6 --distance 200 --delay 0 0 0 0 0 -1 
+python ./src/main.py --dataset china6 --maxAtt 6 --distance 200 --delay 0 0 0 0 0 -1
+cp -r ./pickle/china6 ./tmp/12
