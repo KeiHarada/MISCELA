@@ -633,4 +633,4 @@ def capAnalysis(args):
         if len(c) == 0:
             print(str(idx).zfill(2), ":\tNone")
         else:
-            print(str(idx).zfill(2), ":\t", c)
+            print(str(idx).zfill(2), ":\t", len(c))
