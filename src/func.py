@@ -174,10 +174,14 @@ def scpSearch(S, c, K, psi, tau, X, CAP_X):
 
     CAPs = list()
 
+    CNTs = 0
     if len(X) >= 2:
         for cap_x in CAP_X:
             if len(cap_x.getAttribute()) >= 2 and len(cap_x.getAttribute()) <= K:
                 CAPs += CAP_X
+                CNTs += 1
+    print("")
+    print(len(CAP_X), "\t", CNTs)
 
     F_X = follower(S, c, X)
 
@@ -639,3 +643,301 @@ def capAnalysis(args):
             print(str(idx).zfill(2), ":\tNone")
         else:
             print(str(idx).zfill(2), ":\t", len(c))
+
+def exp_minSup(args):
+
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+
+    psi = ["400", "450", "500", "550", "600"]
+    with open("result/" + args.dataset + "/minSup.csv", "w") as outfile:
+        outfile.write("minSup,assembler,miscela\n")
+
+    for psi_i in psi:
+
+        args.minSup = int(psi_i)
+
+        # SCP search
+        start = time.time()
+        print("\t|- scp search (minSup = {}) ... ".format(psi_i), end="")
+        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_a = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_a/60.0))
+
+        # CAP search
+        start = time.time()
+        print("\t|- cap search (minSup = {}) ... ".format(psi_i), end="")
+        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_m = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_m/60.0))
+
+        # save the results
+        with open("result/" + args.dataset + "/minSup.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(psi_i, str(tau_a), str(tau_m)))
+
+def exp_maxAtt(args):
+
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+
+    myu = len(list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()))
+    myu = list(range(2, myu+1))
+    with open("result/" + args.dataset + "/maxAtt.csv", "w") as outfile:
+        outfile.write("maxAtt,assembler,miscela\n")
+
+    for myu_i in myu:
+
+        args.maxAtt = int(myu_i)
+
+        # SCP search
+        start = time.time()
+        print("\t|- scp search (maxAtt = {}) ... ".format(myu_i), end="")
+        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_a = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_a/60.0))
+
+        # CAP search
+        start = time.time()
+        print("\t|- cap search (maxAtt = {}) ... ".format(myu_i), end="")
+        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_m = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_m/60.0))
+
+        # save the results
+        with open("result/" + args.dataset + "/maxAtt.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(myu_i, str(tau_a), str(tau_m)))
+
+def exp_evoRate(args):
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    eps = ["0.3", "0.4", "0.5", "0.6", "0.7"]
+    with open("result/" + args.dataset + "/evoRate.csv", "w") as outfile:
+        outfile.write("evoRate,assembler,miscela\n")
+
+    for eps_i in eps:
+        args.evoRate = float(eps_i)
+
+        # load data on memory
+        print("\t|- phase0: loading data ... ", end="")
+        S = list()
+        M = dict()
+        D = dict()
+        for attribute in list(open("db/" + str(args.dataset) + "/attribute.csv", "r").readlines()):
+            attribute = attribute.strip()
+            S_a = loadData(attribute, str(args.dataset))
+            S += S_a
+            M[attribute] = len(S_a)
+            D[attribute] = 0
+        print(Color.GREEN + "OK" + Color.END)
+
+        # data segmenting
+        print("\t|- phase1: pre-processing ... ", end="")
+        dataSegmenting(S)
+        print(Color.GREEN + "OK" + Color.END)
+
+        # extract evolving timestamps
+        print("\t|- phase2: extracting evolving timestamps ... ", end="")
+        thresholds = estimateThreshold(S, M, args.evoRate)
+        extractEvolving(S, thresholds)
+        print(Color.GREEN + "OK" + Color.END)
+
+        # clustering
+        print("\t|- phase3: clustering ... ", end="")
+        C = clustering(S, args.distance)
+        print(Color.GREEN + "OK" + Color.END)
+
+        # SCP search
+        start = time.time()
+        print("\t|- scp search (evoRate = {}) ... ".format(eps_i), end="")
+        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_a = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_a / 60.0))
+
+        # CAP search
+        start = time.time()
+        print("\t|- cap search (evoRate = {}) ... ".format(eps_i), end="")
+        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        tau_m = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(tau_m / 60.0))
+
+        # save the results
+        with open("result/" + args.dataset + "/evoRate.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(eps_i, str(tau_a), str(tau_m)))
+
+def exp_delay(args):
+
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # CAP search
+    start = time.time()
+    print("\t|- phase4: cap search ... ", end="")
+    CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    print(Color.GREEN + "OK" + Color.END)
+    tau0 = time.time()-start
+
+    print("*found caps: {}".format(len(CAPs)))
+    print("*search time: {} [m]".format(tau0/60.0))
+
+    print("*----------------------------------------------------------*")
+    print("* re-MISCELA is getting start ...")
+
+    with open("result/" + args.dataset + "/delay.csv", "w") as outfile:
+        outfile.write("delay,-1,+1\n")
+
+    for a_i in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        a_i = a_i.strip()
+
+        '''
+        delay_att = -1
+        '''
+        D = dict()
+        for a_j in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+            a_j = a_j.strip()
+            if a_j == a_i:
+                D[a_j] = -1
+            else:
+                D[a_j] = 0
+        print("\t", D)
+
+        # CAP search
+        start = time.time()
+        print("\t|- cap search ... ", end="")
+        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        taum1 = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(taum1/60.0))
+
+        '''
+        delay_att = +1
+        '''
+        D = dict()
+        for a_j in list(open("db/" + str(args.dataset) + "/attribute.csv", "r").readlines()):
+            a_j = a_j.strip()
+            if a_j == a_i:
+                D[a_j] = +1
+            else:
+                D[a_j] = 0
+        print("\t", D)
+
+        # CAP search
+        start = time.time()
+        print("\t|- cap search ... ", end="")
+        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        print(Color.GREEN + "OK" + Color.END)
+        taup1 = time.time() - start
+
+        print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*search time: {} [m]".format(taup1/ 60.0))
+
+        # save the results
+        with open("result/" + args.dataset + "/delay.csv", "a") as outfile:
+            outfile.write("{},{},{},{}\n".format(a_i, str(taum1), str(tau0), str(taup1)))
