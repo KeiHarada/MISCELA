@@ -615,6 +615,32 @@ def re_miscela(args):
 
 def capAnalysis(args):
 
+    # c = list()
+    # S = pickle.load(open("tmp/00/{}/sensor.pickle".format(args.dataset), "rb"))
+    # for cap_i in pickle.load(open("tmp/00/{}/cap.pickle".format(args.dataset), "rb")):
+    #     tmp = list()
+    #     loc = set()
+    #
+    #     if S[cap_i.getMember()[0]].getId() == "090064":
+    #         for s_i in cap_i.getMember():
+    #             sid = S[s_i].getId()
+    #             loc.add(tuple(S[s_i].getLocation()))
+    #             tmp.append(S[s_i].getId())
+    #             tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
+    #
+    #         if len(list(loc)) == 1:
+    #             c.append(tmp)
+    #             print(tmp)
+    #
+    # S = pd.read_csv("db/{}/location.csv".format(args.dataset))
+    # for c_i in list(c):
+    #     print("--pattern--")
+    #     print(S[S["id"] == int(c_i[0])])
+    #     print(S[S["id"] == int(c_i[2])])
+    #     if len(c_i) > 4:
+    #         print(S[S["id"] == int(c_i[4])])
+    #     print("-----------")
+
     a = set()
     S = pickle.load(open("tmp/00/{}/sensor.pickle".format(args.dataset), "rb"))
     for cap_i in pickle.load(open("tmp/00/{}/cap.pickle".format(args.dataset), "rb")):
@@ -624,7 +650,7 @@ def capAnalysis(args):
             tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
         a.add(tuple(tmp))
 
-    for idx in range(19, 21):
+    for idx in range(7, 9):
         b = set()
         S = pickle.load(open("tmp/{}/{}/sensor.pickle".format(str(idx).zfill(2), args.dataset), "rb"))
         for cap_i in pickle.load(open("tmp/{}/{}/cap.pickle".format(str(idx).zfill(2), args.dataset), "rb")):
@@ -635,8 +661,10 @@ def capAnalysis(args):
                 tmp.append(S[s_i].getId())
                 tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
 
-            if len(loc) >= 2:
-                b.add(tuple(tmp))
+            # if len(loc) >= 2:
+            #     b.add(tuple(tmp))
+
+            b.add(tuple(tmp))
 
         c = b - (a & b)
         if len(c) == 0:
@@ -649,9 +677,9 @@ def capAnalysis(args):
             print("--pattern--")
             print(S[S["id"] == int(c_i[0])])
             print(S[S["id"] == int(c_i[2])])
+            if len(c_i) > 4:
+                print(S[S["id"] == int(c_i[4])])
             print("-----------")
-
-
 
 def exp_minSup(args):
 
