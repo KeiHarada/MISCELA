@@ -624,7 +624,7 @@ def capAnalysis(args):
             tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
         a.add(tuple(tmp))
 
-    for idx in range(1, 27):
+    for idx in range(19, 21):
         b = set()
         S = pickle.load(open("tmp/{}/{}/sensor.pickle".format(str(idx).zfill(2), args.dataset), "rb"))
         for cap_i in pickle.load(open("tmp/{}/{}/cap.pickle".format(str(idx).zfill(2), args.dataset), "rb")):
@@ -642,7 +642,16 @@ def capAnalysis(args):
         if len(c) == 0:
             print(str(idx).zfill(2), ":\tNone")
         else:
-            print(str(idx).zfill(2), ":\t", len(c))
+            print(str(idx).zfill(2), ":\t", c)
+
+        S = pd.read_csv("db/{}/location.csv".format(args.dataset))
+        for c_i in list(c):
+            print("--pattern--")
+            print(S[S["id"] == int(c_i[0])])
+            print(S[S["id"] == int(c_i[2])])
+            print("-----------")
+
+
 
 def exp_minSup(args):
 
