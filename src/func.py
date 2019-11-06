@@ -650,7 +650,8 @@ def capAnalysis(args):
             tmp.append(cap_i.getPattern()[S[s_i].getAttribute()])
         a.add(tuple(tmp))
 
-    for idx in range(7, 9):
+    l = [1, 2] + list(range(5, 13)) + [19, 20]
+    for idx in l:
         b = set()
         S = pickle.load(open("tmp/{}/{}/sensor.pickle".format(str(idx).zfill(2), args.dataset), "rb"))
         for cap_i in pickle.load(open("tmp/{}/{}/cap.pickle".format(str(idx).zfill(2), args.dataset), "rb")):
@@ -664,22 +665,49 @@ def capAnalysis(args):
             # if len(loc) >= 2:
             #     b.add(tuple(tmp))
 
-            b.add(tuple(tmp))
+            if len(loc) == 1:
+                b.add(tuple(tmp))
+
+            # b.add(tuple(tmp))
 
         c = b - (a & b)
-        if len(c) == 0:
-            print(str(idx).zfill(2), ":\tNone")
-        else:
-            print(str(idx).zfill(2), ":\t", c)
+        # if len(c) == 0:
+        #     print(str(idx).zfill(2), ":\tNone")
+        # else:
+        #     print(str(idx).zfill(2), ":\t", len(c))
 
+        # S = pd.read_csv("db/{}/location.csv".format(args.dataset))
+        # for c_i in list(c):
+        #     print("--pattern--")
+        #     print(S[S["id"] == int(c_i[0])])
+        #     print(S[S["id"] == int(c_i[2])])
+        #     if len(c_i) > 4:
+        #         print(S[S["id"] == int(c_i[4])])
+        #     print("-----------")
+
+        A = pickle.load(open("tmp/{}/{}/attribute.pickle".format(str(idx).zfill(2), str(args.dataset)), "rb"))
+        A = dict(zip(list(A.keys()), [0]*len(list(A.keys()))))
         S = pd.read_csv("db/{}/location.csv".format(args.dataset))
         for c_i in list(c):
-            print("--pattern--")
-            print(S[S["id"] == int(c_i[0])])
-            print(S[S["id"] == int(c_i[2])])
+
+            sid = set()
+            sid.add(int(c_i[0][:2]))
+            sid.add(int(c_i[2][:2]))
             if len(c_i) > 4:
-                print(S[S["id"] == int(c_i[4])])
-            print("-----------")
+                sid.add(int(c_i[4][:2]))
+            if len(c_i) > 6:
+                sid.add(int(c_i[6][:2]))
+            if len(c_i) > 8:
+                sid.add(int(c_i[8][:2]))
+
+            for j in list(sid):
+                A[list(A.keys())[j]] += 1
+
+        print(A)
+
+
+
+
 
 def exp_minSup(args):
 
