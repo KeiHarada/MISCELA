@@ -705,10 +705,6 @@ def capAnalysis(args):
 
         print(A)
 
-
-
-
-
 def exp_minSup(args):
 
     print("*----------------------------------------------------------*")
