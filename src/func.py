@@ -134,24 +134,28 @@ def clustering(S, distance):
 
 def search(algorithm, S, C, K, psi, tau):
 
-    CAPs = list()
+    CAPs, CNTs = list(), 0
     if algorithm == "miscela":
         for c in C:
-            CAPs += capSearch(S, c, K, psi, tau, list(), list())
+            result = capSearch(S, c, K, psi, tau, list(), list())
+            CAPs += result[0]
+            CNTs += result[1]
 
     if algorithm == "assembler":
         for c in C:
-            CAPs += scpSearch(S, c, K, psi, tau, list(), list())
+            result = scpSearch(S, c, K, psi, tau, list(), list())
+            CAPs += result[0]
+            CNTs += result[1]
 
     for i in range(len(CAPs)):
         CAPs[i].setId(i)
         CAPs[i].setCoevolution()
 
-    return CAPs
+    return (CAPs, CNTs)
 
 def capSearch(S, c, K, psi, tau, X, CAP_X):
 
-    CAPs = list()
+    CAPs, CNTs = list(), 0
 
     if len(X) >= 2:
         CAPs += CAP_X
@@ -164,24 +168,27 @@ def capSearch(S, c, K, psi, tau, X, CAP_X):
         Y.sort()
 
         if parent_miscela(S, Y, K) == X:
-            CAP_Y = getCAP(S, y, psi, tau, CAP_X)
-            if len(CAP_Y) != 0:
-                CAPs += capSearch(S, c, K, psi, tau, Y, CAP_Y)
+            ## result = (CAP_Y, CNTs) ##
+            result = getCAP(S, y, psi, tau, CAP_X)
+            CAP_Y = result[0]
+            CNTs += result[1]
 
-    return CAPs
+            if len(CAP_Y) != 0:
+                ## result = (CAPs, CNTs) ##
+                result = capSearch(S, c, K, psi, tau, Y, CAP_Y)
+                CAPs += result[0]
+                CNTs += result[1]
+
+    return (CAPs, CNTs)
 
 def scpSearch(S, c, K, psi, tau, X, CAP_X):
 
-    CAPs = list()
+    CAPs, CNTs = list(), 0
 
-    CNTs = 0
     if len(X) >= 2:
         for cap_x in CAP_X:
             if len(cap_x.getAttribute()) >= 2 and len(cap_x.getAttribute()) <= K:
                 CAPs += CAP_X
-                CNTs += 1
-    print("")
-    print(len(CAP_X), "\t", CNTs)
 
     F_X = follower(S, c, X)
 
@@ -191,11 +198,18 @@ def scpSearch(S, c, K, psi, tau, X, CAP_X):
         Y.sort()
 
         if parent_assembler(S, Y) == X:
-            CAP_Y = getCAP(S, y, psi, tau, CAP_X)
-            if len(CAP_Y) != 0:
-                CAPs += capSearch(S, c, K, psi, tau, Y, CAP_Y)
+            ## result = (CAP_Y, CNTs) ##
+            result = getCAP(S, y, psi, tau, CAP_X)
+            CAP_Y = result[0]
+            CNTs += result[1]
 
-    return CAPs
+            if len(CAP_Y) != 0:
+                ## result = (CAPs, CNTs) ##
+                result = scpSearch(S, c, K, psi, tau, Y, CAP_Y)
+                CAPs += result[0]
+                CNTs += result[1]
+
+    return (CAPs, CNTs)
 
 def follower(S, c, X):
 
@@ -207,7 +221,7 @@ def follower(S, c, X):
     else:
         F_X = set()
         for x in X:
-            F_X |= S[x].getNeighbor()
+            F_X |= set(S[x].getNeighbor())
         F_X -= set(X)
         return sorted(list(F_X))
 
@@ -298,7 +312,7 @@ def getCAP(S, y, psi, tau, C_X):
             cap.setP2(S[y].getTn(delay))
             C_Y.append(cap)
 
-        return C_Y
+        return (C_Y, 1)
 
     # following
     else:
@@ -356,7 +370,7 @@ def getCAP(S, y, psi, tau, C_X):
                     cap_new.setP2(p2)
                     C_Y.append(cap_new)
 
-        return C_Y
+        return (C_Y, len(C_X))
 
 def outputCAP(dataset, S, CAPs):
 
@@ -432,7 +446,9 @@ def miscela(args):
     # CAP search
     start = time.time()
     print("\t|- phase4: cap search ... ", end="")
-    CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    CAPs = result[0]
+    CNTs = result[1]
     print(Color.GREEN + "OK" + Color.END)
     end = time.time()
 
@@ -451,6 +467,7 @@ def miscela(args):
         pickle.dump(thresholds, pl)
 
     print("*found caps: {}".format(len(CAPs)))
+    print("*Computations: {}".format(len(CNTs)))
     print("*search time: {} [m]".format((end-start)/60.0))
 
 def assembler(args):
@@ -491,7 +508,9 @@ def assembler(args):
     # CAP search
     start = time.time()
     print("\t|- phase4: cap search ... ", end="")
-    CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+    result = search("assembler", S, C, args.maxAtt, args.minSup, D)
+    CAPs = result[0]
+    CNTs = result[1]
     print(Color.GREEN + "OK" + Color.END)
     end = time.time()
 
@@ -508,6 +527,7 @@ def assembler(args):
         pickle.dump(thresholds, pl)
 
     print("*found caps: {}".format(len(CAPs)))
+    print("*Computations: {}".format(len(CNTs)))
     print("*search time: {} [m]".format((end - start) / 60.0))
 
 def mocServer(args):
