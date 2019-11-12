@@ -1,5 +1,6 @@
 import sys
 sys.path.append("/home/harada/Documents/WorkSpace/miscela")
+sys.path.append("/home")
 
 import pandas as pd
 import numpy as np
