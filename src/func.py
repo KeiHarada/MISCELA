@@ -760,7 +760,9 @@ def exp_minSup(args):
     print(Color.GREEN + "OK" + Color.END)
 
     psi = ["400", "450", "500", "550", "600"]
-    with open("result/" + args.dataset + "/minSup.csv", "w") as outfile:
+    with open("result/" + args.dataset + "/minSup_time.csv", "w") as outfile:
+        outfile.write("minSup,assembler,miscela\n")
+    with open("result/" + args.dataset + "/minSup_cmp.csv", "w") as outfile:
         outfile.write("minSup,assembler,miscela\n")
 
     for psi_i in psi:
@@ -772,12 +774,12 @@ def exp_minSup(args):
         print("\t|- scp search (minSup = {}) ... ".format(psi_i), end="")
         result = search("assembler", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_a = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_a)))
         print("\t*search time: {} [m]".format(tau_a/60.0))
 
         # CAP search
@@ -785,17 +787,19 @@ def exp_minSup(args):
         print("\t|- cap search (minSup = {}) ... ".format(psi_i), end="")
         result = search("miscela", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_m = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_m)))
         print("\t*search time: {} [m]".format(tau_m/60.0))
 
         # save the results
-        with open("result/" + args.dataset + "/minSup.csv", "a") as outfile:
+        with open("result/" + args.dataset + "/minSup_time.csv", "a") as outfile:
             outfile.write("{},{},{}\n".format(psi_i, str(tau_a), str(tau_m)))
+        with open("result/" + args.dataset + "/minSup_cmp.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(psi_i, str(CNTs_a), str(CNTs_m)))
 
 def exp_maxAtt(args):
 
@@ -833,7 +837,9 @@ def exp_maxAtt(args):
 
     myu = len(list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()))
     myu = list(range(2, myu+1))
-    with open("result/" + args.dataset + "/maxAtt.csv", "w") as outfile:
+    with open("result/" + args.dataset + "/maxAtt_time.csv", "w") as outfile:
+        outfile.write("maxAtt,assembler,miscela\n")
+    with open("result/" + args.dataset + "/maxAtt_cmp.csv", "w") as outfile:
         outfile.write("maxAtt,assembler,miscela\n")
 
     for myu_i in myu:
@@ -845,12 +851,12 @@ def exp_maxAtt(args):
         print("\t|- scp search (maxAtt = {}) ... ".format(myu_i), end="")
         result = search("assembler", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_a = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_a)))
         print("\t*search time: {} [m]".format(tau_a/60.0))
 
         # CAP search
@@ -858,24 +864,28 @@ def exp_maxAtt(args):
         print("\t|- cap search (maxAtt = {}) ... ".format(myu_i), end="")
         result = search("miscela", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_m = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_m)))
         print("\t*search time: {} [m]".format(tau_m/60.0))
 
         # save the results
-        with open("result/" + args.dataset + "/maxAtt.csv", "a") as outfile:
+        with open("result/" + args.dataset + "/maxAtt_time.csv", "a") as outfile:
             outfile.write("{},{},{}\n".format(myu_i, str(tau_a), str(tau_m)))
+        with open("result/" + args.dataset + "/maxAtt_cmp.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(myu_i, str(CNTs_a), str(CNTs_m)))
 
 def exp_evoRate(args):
     print("*----------------------------------------------------------*")
     print("* MISCELA is getting start ...")
 
     eps = ["0.3", "0.4", "0.5", "0.6", "0.7"]
-    with open("result/" + args.dataset + "/evoRate.csv", "w") as outfile:
+    with open("result/" + args.dataset + "/evoRate_time.csv", "w") as outfile:
+        outfile.write("evoRate,assembler,miscela\n")
+    with open("result/" + args.dataset + "/evoRate_cmp.csv", "w") as outfile:
         outfile.write("evoRate,assembler,miscela\n")
 
     for eps_i in eps:
@@ -915,12 +925,12 @@ def exp_evoRate(args):
         print("\t|- scp search (evoRate = {}) ... ".format(eps_i), end="")
         result = search("assembler", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_a = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_a)))
         print("\t*search time: {} [m]".format(tau_a / 60.0))
 
         # CAP search
@@ -928,17 +938,19 @@ def exp_evoRate(args):
         print("\t|- cap search (evoRate = {}) ... ".format(eps_i), end="")
         result = search("miscela", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTs_m = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTs_m)))
         print("\t*search time: {} [m]".format(tau_m / 60.0))
 
         # save the results
-        with open("result/" + args.dataset + "/evoRate.csv", "a") as outfile:
+        with open("result/" + args.dataset + "/evoRate_time.csv", "a") as outfile:
             outfile.write("{},{},{}\n".format(eps_i, str(tau_a), str(tau_m)))
+        with open("result/" + args.dataset + "/evoRate_cmp.csv", "a") as outfile:
+            outfile.write("{},{},{}\n".format(eps_i, str(CNTs_a), str(CNTs_m)))
 
 def exp_delay(args):
 
@@ -979,19 +991,21 @@ def exp_delay(args):
     print("\t|- phase4: cap search ... ", end="")
     result = search("miscela", S, C, args.maxAtt, args.minSup, D)
     CAPs = result[0]
-    CNTs = result[1]
+    CNTs0 = result[1]
     print(Color.GREEN + "OK" + Color.END)
     tau0 = time.time()-start
 
     print("*found caps: {}".format(len(CAPs)))
-    print("*Computations: {}".format(str(CNTs)))
+    print("*Computations: {}".format(str(CNTs0)))
     print("*search time: {} [m]".format(tau0/60.0))
 
     print("*----------------------------------------------------------*")
     print("* re-MISCELA is getting start ...")
 
-    with open("result/" + args.dataset + "/delay.csv", "w") as outfile:
-        outfile.write("delay,-1,+1\n")
+    with open("result/" + args.dataset + "/delay_time.csv", "w") as outfile:
+        outfile.write("delay,-1,0,+1\n")
+    with open("result/" + args.dataset + "/delay_cmp.csv", "w") as outfile:
+        outfile.write("delay,-1,0,+1\n")
 
     for a_i in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
         a_i = a_i.strip()
@@ -1013,12 +1027,12 @@ def exp_delay(args):
         print("\t|- cap search ... ", end="")
         result = search("miscela", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTsp1 = result[1]
         print(Color.GREEN + "OK" + Color.END)
         taum1 = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTsp1)))
         print("\t*search time: {} [m]".format(taum1/60.0))
 
         '''
@@ -1038,14 +1052,16 @@ def exp_delay(args):
         print("\t|- cap search ... ", end="")
         result = search("miscela", S, C, args.maxAtt, args.minSup, D)
         CAPs = result[0]
-        CNTs = result[1]
+        CNTsm1 = result[1]
         print(Color.GREEN + "OK" + Color.END)
         taup1 = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
-        print("\t*Computations: {}".format(str(CNTs)))
+        print("\t*Computations: {}".format(str(CNTsm1)))
         print("\t*search time: {} [m]".format(taup1/ 60.0))
 
         # save the results
-        with open("result/" + args.dataset + "/delay.csv", "a") as outfile:
+        with open("result/" + args.dataset + "/delay_time.csv", "a") as outfile:
             outfile.write("{},{},{},{}\n".format(a_i, str(taum1), str(tau0), str(taup1)))
+        with open("result/" + args.dataset + "/delay_cmp.csv", "a") as outfile:
+            outfile.write("{},{},{},{}\n".format(a_i, str(CNTsm1), str(CNTs0), str(CNTsp1)))
