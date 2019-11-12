@@ -467,7 +467,7 @@ def miscela(args):
         pickle.dump(thresholds, pl)
 
     print("*found caps: {}".format(len(CAPs)))
-    print("*Computations: {}".format(len(CNTs)))
+    print("*Computations: {}".format(str(CNTs)))
     print("*search time: {} [m]".format((end-start)/60.0))
 
 def assembler(args):
@@ -527,7 +527,7 @@ def assembler(args):
         pickle.dump(thresholds, pl)
 
     print("*found caps: {}".format(len(CAPs)))
-    print("*Computations: {}".format(len(CNTs)))
+    print("*Computations: {}".format(str(CNTs)))
     print("*search time: {} [m]".format((end - start) / 60.0))
 
 def mocServer(args):
@@ -770,21 +770,27 @@ def exp_minSup(args):
         # SCP search
         start = time.time()
         print("\t|- scp search (minSup = {}) ... ".format(psi_i), end="")
-        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        result = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_a/60.0))
 
         # CAP search
         start = time.time()
         print("\t|- cap search (minSup = {}) ... ".format(psi_i), end="")
-        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_m/60.0))
 
         # save the results
@@ -837,21 +843,27 @@ def exp_maxAtt(args):
         # SCP search
         start = time.time()
         print("\t|- scp search (maxAtt = {}) ... ".format(myu_i), end="")
-        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        result = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_a/60.0))
 
         # CAP search
         start = time.time()
         print("\t|- cap search (maxAtt = {}) ... ".format(myu_i), end="")
-        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_m/60.0))
 
         # save the results
@@ -901,21 +913,27 @@ def exp_evoRate(args):
         # SCP search
         start = time.time()
         print("\t|- scp search (evoRate = {}) ... ".format(eps_i), end="")
-        CAPs = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        result = search("assembler", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_a = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_a / 60.0))
 
         # CAP search
         start = time.time()
         print("\t|- cap search (evoRate = {}) ... ".format(eps_i), end="")
-        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         tau_m = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(tau_m / 60.0))
 
         # save the results
@@ -959,11 +977,14 @@ def exp_delay(args):
     # CAP search
     start = time.time()
     print("\t|- phase4: cap search ... ", end="")
-    CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+    CAPs = result[0]
+    CNTs = result[1]
     print(Color.GREEN + "OK" + Color.END)
     tau0 = time.time()-start
 
     print("*found caps: {}".format(len(CAPs)))
+    print("*Computations: {}".format(str(CNTs)))
     print("*search time: {} [m]".format(tau0/60.0))
 
     print("*----------------------------------------------------------*")
@@ -990,11 +1011,14 @@ def exp_delay(args):
         # CAP search
         start = time.time()
         print("\t|- cap search ... ", end="")
-        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         taum1 = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(taum1/60.0))
 
         '''
@@ -1012,11 +1036,14 @@ def exp_delay(args):
         # CAP search
         start = time.time()
         print("\t|- cap search ... ", end="")
-        CAPs = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        result = search("miscela", S, C, args.maxAtt, args.minSup, D)
+        CAPs = result[0]
+        CNTs = result[1]
         print(Color.GREEN + "OK" + Color.END)
         taup1 = time.time() - start
 
         print("\t*found caps: {}".format(len(CAPs)))
+        print("\t*Computations: {}".format(str(CNTs)))
         print("\t*search time: {} [m]".format(taup1/ 60.0))
 
         # save the results

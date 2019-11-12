@@ -8,6 +8,9 @@ from src.func import re_miscela
 from src.func import assembler
 from src.func import capAnalysis
 from src.func import exp_delay
+from src.func import exp_maxAtt
+from src.func import exp_minSup
+from src.func import exp_evoRate
 from src.func import outputCAP
 
 if __name__ == "__main__":
@@ -45,8 +48,20 @@ if __name__ == "__main__":
         capAnalysis(args)
         exit()
 
-    if args.mode == "exp":
+    if args.mode == "expDelay":
         exp_delay(args)
+        exit()
+
+    if args.mode == "expEvoRate":
+        exp_evoRate(args)
+        exit()
+
+    if args.mode == "expMaxAtt":
+        exp_maxAtt(args)
+        exit()
+
+    if args.mode == "expMinSup":
+        exp_minSup(args)
         exit()
 
     if args.mode == "output":
