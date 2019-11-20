@@ -189,7 +189,7 @@ def scpSearch(S, c, K, psi, tau, X, CAP_X):
     if len(X) >= 2:
         for cap_x in CAP_X:
             if len(cap_x.getAttribute()) >= 2 and len(cap_x.getAttribute()) <= K:
-                CAPs += cap_x
+                CAPs.append(cap_x)
 
     F_X = follower(S, c, X)
 
