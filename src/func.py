@@ -573,6 +573,39 @@ def assembler(args):
 
 def exp_minSup(args):
 
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+    print("\t* {} clusters".format(str(len(C))))
+
     psi = ["400", "450", "500", "550", "600"]
     with open("result/" + args.dataset + "/minSup_time.csv", "w") as outfile:
         outfile.write("minSup,assembler,miscela\n")
@@ -580,41 +613,7 @@ def exp_minSup(args):
         outfile.write("minSup,assembler,miscela\n")
 
     for psi_i in psi:
-
         args.minSup = int(psi_i)
-
-        print("*----------------------------------------------------------*")
-        print("* MISCELA is getting start ...")
-
-        # load data on memory
-        print("\t|- phase0: loading data ... ", end="")
-        S = list()
-        M = dict()
-        D = dict()
-        for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
-            attribute = attribute.strip()
-            S_a = loadData(attribute, str(args.dataset))
-            S += S_a
-            M[attribute] = len(S_a)
-            D[attribute] = 0
-        print(Color.GREEN + "OK" + Color.END)
-
-        # data segmenting
-        print("\t|- phase1: pre-processing ... ", end="")
-        dataSegmenting(S)
-        print(Color.GREEN + "OK" + Color.END)
-
-        # extract evolving timestamps
-        print("\t|- phase2: extracting evolving timestamps ... ", end="")
-        thresholds = estimateThreshold(S, M, args.evoRate)
-        extractEvolving(S, thresholds)
-        print(Color.GREEN + "OK" + Color.END)
-
-        # clustering
-        print("\t|- phase3: clustering ... ", end="")
-        C = clustering(S, args.distance)
-        print(Color.GREEN + "OK" + Color.END)
-        print("\t* {} clusters".format(str(len(C))))
 
         # SCP search
         start = time.time()
@@ -648,6 +647,39 @@ def exp_minSup(args):
 
 def exp_maxAtt(args):
 
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # extract evolving timestamps
+    print("\t|- phase2: extracting evolving timestamps ... ", end="")
+    thresholds = estimateThreshold(S, M, args.evoRate)
+    extractEvolving(S, thresholds)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+    print("\t* {} clusters".format(str(len(C))))
+
     myu = len(list(open("db/" + str(args.dataset) + "/attribute.csv", "r").readlines()))
     myu = list(range(2, myu + 1))
     with open("result/" + args.dataset + "/maxAtt_time.csv", "w") as outfile:
@@ -656,41 +688,7 @@ def exp_maxAtt(args):
         outfile.write("maxAtt,assembler,miscela\n")
 
     for myu_i in myu:
-
         args.maxAtt = int(myu_i)
-
-        print("*----------------------------------------------------------*")
-        print("* MISCELA is getting start ...")
-
-        # load data on memory
-        print("\t|- phase0: loading data ... ", end="")
-        S = list()
-        M = dict()
-        D = dict()
-        for attribute in list(open("db/"+str(args.dataset)+"/attribute.csv", "r").readlines()):
-            attribute = attribute.strip()
-            S_a = loadData(attribute, str(args.dataset))
-            S += S_a
-            M[attribute] = len(S_a)
-            D[attribute] = 0
-        print(Color.GREEN + "OK" + Color.END)
-
-        # data segmenting
-        print("\t|- phase1: pre-processing ... ", end="")
-        dataSegmenting(S)
-        print(Color.GREEN + "OK" + Color.END)
-
-        # extract evolving timestamps
-        print("\t|- phase2: extracting evolving timestamps ... ", end="")
-        thresholds = estimateThreshold(S, M, args.evoRate)
-        extractEvolving(S, thresholds)
-        print(Color.GREEN + "OK" + Color.END)
-
-        # clustering
-        print("\t|- phase3: clustering ... ", end="")
-        C = clustering(S, args.distance)
-        print(Color.GREEN + "OK" + Color.END)
-        print("\t* {} clusters".format(str(len(C))))
 
         # SCP search
         start = time.time()
@@ -724,6 +722,33 @@ def exp_maxAtt(args):
 
 def exp_evoRate(args):
 
+    print("*----------------------------------------------------------*")
+    print("* MISCELA is getting start ...")
+
+    # load data on memory
+    print("\t|- phase0: loading data ... ", end="")
+    S = list()
+    M = dict()
+    D = dict()
+    for attribute in list(open("db/" + str(args.dataset) + "/attribute.csv", "r").readlines()):
+        attribute = attribute.strip()
+        S_a = loadData(attribute, str(args.dataset))
+        S += S_a
+        M[attribute] = len(S_a)
+        D[attribute] = 0
+    print(Color.GREEN + "OK" + Color.END)
+
+    # data segmenting
+    print("\t|- phase1: pre-processing ... ", end="")
+    dataSegmenting(S)
+    print(Color.GREEN + "OK" + Color.END)
+
+    # clustering
+    print("\t|- phase3: clustering ... ", end="")
+    C = clustering(S, args.distance)
+    print(Color.GREEN + "OK" + Color.END)
+    print("\t* {} clusters".format(str(len(C))))
+
     eps = ["0.3", "0.4", "0.5", "0.6", "0.7"]
     with open("result/" + args.dataset + "/evoRate_time.csv", "w") as outfile:
         outfile.write("evoRate,assembler,miscela\n")
@@ -731,41 +756,13 @@ def exp_evoRate(args):
         outfile.write("evoRate,assembler,miscela\n")
 
     for eps_i in eps:
-
         args.evoRate = float(eps_i)
-
-        print("*----------------------------------------------------------*")
-        print("* MISCELA is getting start ...")
-
-        # load data on memory
-        print("\t|- phase0: loading data ... ", end="")
-        S = list()
-        M = dict()
-        D = dict()
-        for attribute in list(open("db/" + str(args.dataset) + "/attribute.csv", "r").readlines()):
-            attribute = attribute.strip()
-            S_a = loadData(attribute, str(args.dataset))
-            S += S_a
-            M[attribute] = len(S_a)
-            D[attribute] = 0
-        print(Color.GREEN + "OK" + Color.END)
-
-        # data segmenting
-        print("\t|- phase1: pre-processing ... ", end="")
-        dataSegmenting(S)
-        print(Color.GREEN + "OK" + Color.END)
 
         # extract evolving timestamps
         print("\t|- phase2: extracting evolving timestamps ... ", end="")
         thresholds = estimateThreshold(S, M, args.evoRate)
         extractEvolving(S, thresholds)
         print(Color.GREEN + "OK" + Color.END)
-
-        # clustering
-        print("\t|- phase3: clustering ... ", end="")
-        C = clustering(S, args.distance)
-        print(Color.GREEN + "OK" + Color.END)
-        print("\t* {} clusters".format(str(len(C))))
 
         # SCP search
         start = time.time()
